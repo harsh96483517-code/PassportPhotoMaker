@@ -35,10 +35,10 @@ object ImageUtils {
                 val source = android.graphics.ImageDecoder.createSource(context.contentResolver, uri)
                 android.graphics.ImageDecoder.decodeBitmap(
                     source,
-                    android.graphics.ImageDecoder.OnHeaderDecodedListener { _, info, _ ->
+                    android.graphics.ImageDecoder.OnHeaderDecodedListener { decoder, info, _ ->
                         val (w, h) = info.size.width to info.size.height
                         val scale = sampleScale(max(w, h), maxDim)
-                        info.setTargetSampleSize(scale)
+                        decoder.setTargetSampleSize(scale)
                     }
                 ).copy(Bitmap.Config.ARGB_8888, false)
             } else {
@@ -251,7 +251,12 @@ object ImageUtils {
             for (col in 0 until layout.cols) {
                 val x = layout.marginX + col * (layout.cellW + layout.gapX)
                 val y = layout.marginY + row * (layout.cellH + layout.gapY)
-                val cellRect = RectF(x, y, x + layout.cellW, y + layout.cellH)
+                val cellRect = RectF(
+                    x.toFloat(),
+                    y.toFloat(),
+                    (x + layout.cellW).toFloat(),
+                    (y + layout.cellH).toFloat()
+                )
                 canvas.drawBitmap(photo, null, cellRect, paint)
                 canvas.drawRect(cellRect, Paint().apply {
                     style = Paint.Style.STROKE
